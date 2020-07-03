@@ -461,6 +461,15 @@ const converters = [
         // URL isn't for Figma
         return null;
     },
+    function getBadgePreviewUrl(url) {
+        // Dumb test version of badge printing by pasting the URL in the field
+        if (url.match(/mr365\.co/)) {
+            return url;
+        }
+
+        // URL isn't for Badge Printing
+        return null;
+    },
 ];
 
 initializeBlock(() => <UrlPreviewBlock />);
