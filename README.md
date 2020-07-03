@@ -1,4 +1,4 @@
-# URL preview block
+# AirTable Badge Printing block
 
 When the user selects a record in grid view, this block gets a preview URL from the record and shows
 the corresponding preview. This block supports previews from the following services: YouTube, Vimeo,
