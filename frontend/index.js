@@ -270,8 +270,6 @@ function RecordPreview({
     // RecordPreview may now need to render a preview, or render nothing at all.
     useWatchable(cursor, ['activeTableId', 'activeViewId']);
 
-        <TextButton size="small" marginTop={3} onClick={() => setIsDialogOpen(true)}>
-            View supported URLs
     if (
         // If there is/was a specified table enforced, but the cursor
         // is not presently in the specified table, display a message to the user.
@@ -283,7 +281,6 @@ function RecordPreview({
     ) {
         return (
             <Fragment>
-                <Text paddingX={3}>Switch to the “{table.name}” table to see previews.</Text>
                 <Text paddingX={3}>Switch to the “{table.name}” table to see badge previews.</Text>
                 <TextButton size="small" marginTop={3} onClick={() => setIsSettingsOpen(true)}>
                     Settings
