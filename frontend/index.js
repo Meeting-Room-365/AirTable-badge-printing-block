@@ -167,7 +167,7 @@ function UrlPreviewBlock() {
             {recordActionErrorMessage && (
                 <Dialog onClose={() => setRecordActionErrorMessage('')} maxWidth={400}>
                     <Dialog.CloseButton />
-                    <Heading size="small">Can&apos;t preview URL</Heading>
+                    <Heading size="small">Can&apos;t preview badge</Heading>
                     <Text variant="paragraph" marginBottom={0}>
                         {recordActionErrorMessage}
                     </Text>
@@ -270,13 +270,8 @@ function RecordPreview({
     // RecordPreview may now need to render a preview, or render nothing at all.
     useWatchable(cursor, ['activeTableId', 'activeViewId']);
 
-    // This button is re-used in two states so it's pulled out in a constant here.
-    const viewSupportedURLsButton = (
         <TextButton size="small" marginTop={3} onClick={() => setIsDialogOpen(true)}>
             View supported URLs
-        </TextButton>
-    );
-
     if (
         // If there is/was a specified table enforced, but the cursor
         // is not presently in the specified table, display a message to the user.
@@ -289,6 +284,7 @@ function RecordPreview({
         return (
             <Fragment>
                 <Text paddingX={3}>Switch to the “{table.name}” table to see previews.</Text>
+                <Text paddingX={3}>Switch to the “{table.name}” table to see badge previews.</Text>
                 <TextButton size="small" marginTop={3} onClick={() => setIsSettingsOpen(true)}>
                     Settings
                 </TextButton>
@@ -300,7 +296,7 @@ function RecordPreview({
         (cursor.activeViewId === null ||
             table.getViewById(cursor.activeViewId).type !== ViewType.GRID)
     ) {
-        return <Text>Switch to a grid view to see previews</Text>;
+        return <Text>Switch to a grid view to see badge previews</Text>;
     } else if (
         // selectedRecord will be null on block initialization, after
         // the user switches table or view, or if it was deleted.
@@ -310,8 +306,7 @@ function RecordPreview({
     ) {
         return (
             <Fragment>
-                <Text>Select a cell to see a preview</Text>
-                {viewSupportedURLsButton}
+                <Text>Select a row to see a badge preview</Text>
             </Fragment>
         );
     } else {
@@ -327,12 +322,10 @@ function RecordPreview({
 
             try {
                 const value = selectedRecord.getCellValueAsString(name);
-
+                if (name === 'Visiting') badgeData.host = value;
                 if (name === 'Full Name') badgeData.name = value;
                 if (name === 'Company') badgeData.company = value;
-                if (name === 'Visiting') badgeData.host = value;
                 if (name === 'Date/Time of Visit') badgeData.date = value.split(' ')[0];
-
             } catch(e){}
         }
 
