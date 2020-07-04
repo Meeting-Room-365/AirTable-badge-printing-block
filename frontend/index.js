@@ -318,17 +318,37 @@ function RecordPreview({
         // Using getCellValueAsString guarantees we get a string back. If
         // we use getCellValue, we might get back numbers, booleans, or
         // arrays depending on the field type.
-        const cellValue = selectedRecord.getCellValueAsString(previewField);
+        let badgeData = {};
 
-        if (!cellValue) {
+        const fieldNames = ['Full Name', 'Company', 'Visiting', 'Date/Time of Visit'];
+
+        for (let i in fieldNames) {
+            let name = fieldNames[i];
+
+            try {
+                const value = selectedRecord.getCellValueAsString(name);
+
+                if (name === 'Full Name') badgeData.name = value;
+                if (name === 'Company') badgeData.company = value;
+                if (name === 'Visiting') badgeData.host = value;
+                if (name === 'Date/Time of Visit') badgeData.date = value.split(' ')[0];
+
+            } catch(e){}
+        }
+
+        if (!Object.keys(badgeData).length) {
             return (
                 <Fragment>
-                    <Text>The “{previewField.name}” field is empty</Text>
-                    {viewSupportedURLsButton}
+                    <Text>Select a record to generate a badge</Text>
                 </Fragment>
             );
         } else {
-            const previewUrl = getPreviewUrlForCellValue(cellValue);
+            let previewUrl = 'https://visitor.mr365.co/badge?attachment=false';
+
+            if (badgeData.name) previewUrl += '&name=' + encodeURIComponent(badgeData.name);
+            if (badgeData.company) previewUrl += '&company=' + encodeURIComponent(badgeData.company);
+            if (badgeData.date) previewUrl += '&date=' + encodeURIComponent(badgeData.date);
+            if (badgeData.host) previewUrl += '&host=' + encodeURIComponent(badgeData.host);
 
             // In this case, the FIELD_NAME field of the currently selected
             // record either contains no URL, or contains a that cannot be
@@ -336,8 +356,7 @@ function RecordPreview({
             if (!previewUrl) {
                 return (
                     <Fragment>
-                        <Text>No preview</Text>
-                        {viewSupportedURLsButton}
+                        <Text>No badge</Text>
                     </Fragment>
                 );
             } else {
@@ -361,115 +380,5 @@ function RecordPreview({
         }
     }
 }
-
-function getPreviewUrlForCellValue(url) {
-    if (!url) {
-        return null;
-    }
-
-    // Try to extract the preview URL from the URL using regular expression
-    // based helper functions for each service we support.
-    //
-    for (const converter of converters) {
-        const previewUrl = converter(url);
-        if (previewUrl) {
-            return previewUrl;
-        }
-    }
-    // If no converter is found, return null.
-    return null;
-}
-
-const converters = [
-    function getAirtablePreviewUrl(url) {
-        const match = url.match(/airtable\.com(\/embed)?\/(shr[A-Za-z0-9]{14}.*)/);
-        if (match) {
-            return `https://airtable.com/embed/${match[2]}`;
-        }
-
-        // URL isn't for an Airtable share
-        return null;
-    },
-    function getYoutubePreviewUrl(url) {
-        // Standard youtube urls, e.g. https://www.youtube.com/watch?v=KYz2wyBy3kc
-        let match = url.match(/youtube\.com\/.*v=([\w-]+)(&|$)/);
-
-        if (match) {
-            return `https://www.youtube.com/embed/${match[1]}`;
-        }
-
-        // Shortened youtube urls, e.g. https://youtu.be/KYz2wyBy3kc
-        match = url.match(/youtu\.be\/([\w-]+)(\?|$)/);
-        if (match) {
-            return `https://www.youtube.com/embed/${match[1]}`;
-        }
-
-        // Youtube playlist urls, e.g. youtube.com/playlist?list=KYz2wyBy3kc
-        match = url.match(/youtube\.com\/playlist\?.*list=([\w-]+)(&|$)/);
-        if (match) {
-            return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
-        }
-
-        // URL isn't for a youtube video
-        return null;
-    },
-    function getVimeoPreviewUrl(url) {
-        const match = url.match(/vimeo\.com\/([\w-]+)(\?|$)/);
-        if (match) {
-            return `https://player.vimeo.com/video/${match[1]}`;
-        }
-
-        // URL isn't for a Vimeo video
-        return null;
-    },
-    function getSpotifyPreviewUrl(url) {
-        // Spotify URLs for song, album, artist, playlist all have similar formats
-        let match = url.match(/spotify\.com\/(track|album|artist|playlist)\/([\w-]+)(\?|$)/);
-        if (match) {
-            return `https://open.spotify.com/embed/${match[1]}/${match[2]}`;
-        }
-
-        // Spotify URLs for podcasts and episodes have a different format
-        match = url.match(/spotify\.com\/(show|episode)\/([\w-]+)(\?|$)/);
-        if (match) {
-            return `https://open.spotify.com/embed-podcast/${match[1]}/${match[2]}`;
-        }
-
-        // URL isn't for Spotify
-        return null;
-    },
-    function getSoundcloudPreviewUrl(url) {
-        // Soundcloud url's don't have a clear format, so just check if they are from soundcloud and try
-        // to embed them.
-        if (url.match(/soundcloud\.com/)) {
-            return `https://w.soundcloud.com/player/?url=${url}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`;
-        }
-
-        // URL isn't for Soundcloud
-        return null;
-    },
-    function getFigmaPreviewUrl(url) {
-        // Figma has a regex they recommend matching against
-        if (
-            url.match(
-                /(https:\/\/([\w.-]+\.)?)?figma.com\/(file|proto)\/([0-9a-zA-Z]{22,128})(?:\/.*)?$/,
-            )
-        ) {
-            return `https://www.figma.com/embed?embed_host=astra&url=${url}`;
-        }
-
-        // URL isn't for Figma
-        return null;
-    },
-    function getBadgePreviewUrl(url) {
-        // Dumb test version of badge printing by pasting the URL in the field
-        if (url.match(/mr365\.co/)) {
-            return url;
-        }
-
-        // URL isn't for Badge Printing
-        return null;
-    },
-];
 
 initializeBlock(() => <UrlPreviewBlock />);
