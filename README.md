@@ -24,3 +24,7 @@ The code shows:
 ## See the block running
 
 ![Block showing YouTube video when user selects record in grid view](media/block.gif)
+
+## License
+
+This codebase is not licensed for external use by entities other than the author.

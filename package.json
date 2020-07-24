@@ -9,6 +9,8 @@
         "eslint-plugin-react": "^7.14.3",
         "eslint-plugin-react-hooks": "^2.0.1"
     },
+    "license": "COPYING DISALLOWED -- DO NOT DISTRIBUTE",
+    "private": true,
     "scripts": {
         "lint": "eslint frontend",
         "start": "block run"
